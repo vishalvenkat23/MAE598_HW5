@@ -36,18 +36,13 @@ end
 solution = mysqp(f, df, g, dg, x0, opt);
 
 %% Report
-report(solution,f,g);
+report(solution,f);
 
 
-function report(solution,f,g)
+function report(solution,f)
     figure; % Open an empty figure window
     hold on; % Hold on to the current figure
     
-    % Draw a 2D contour plot for the objective function
-    % You can edit drawing parameters within the file: drawContour.m
-%     drawContour(f,g);
-    
-    % Plot the search path
     x = solution.x;
     iter = size(x,2);
     plot(x(1,1),x(2,1),'.g','markerSize',20);
@@ -66,12 +61,8 @@ function report(solution,f,g)
     figure;
     plot(1:iter, log(F-F(end)+eps),'k','lineWidth',3);
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
- 
 
 %%%%%%%%%%%%%% Sequential Quadratic Programming Implementation with BFGS %%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%% By Max Yi Ren and Emrah Bayrak %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function solution = mysqp(f, df, g, dg, x0, opt)
     % Set initial conditions
@@ -101,7 +92,7 @@ function solution = mysqp(f, df, g, dg, x0, opt)
         else
             % Solve the QP subproblem to find s and mu (using MATLAB's solver)
             qpalg = optimset('Algorithm', 'active-set', 'Display', 'off');
-            [s,~,~,~,lambda] = quadprog(W,[df(x)]',dg(x),-g(x),[], [], [], [], [],  qpalg); %#ok<NBRAK> 
+            [s,~,~,~,lambda] = quadprog(W,[df(x)]',dg(x),-g(x),[], [], [], [], [],  qpalg); 
             mu_new = lambda.ineqlin;
         end
         
@@ -140,9 +131,6 @@ function solution = mysqp(f, df, g, dg, x0, opt)
         solution.x = [solution.x, x]; 
     end
 end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
- 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -192,23 +180,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [s, mu0] = solveqp(x, W, df, g, dg)
-    % Implement an Active-Set strategy to solve the QP problem given by
-    % min     (1/2)*s'*W*s + c'*s
-    % s.t.    A*s-b <= 0
-    % 
-    % where As-b is the linearized active contraint set
-    
-    % Strategy should be as follows:
-    % 1-) Start with empty working-set
-    % 2-) Solve the problem using the working-set
-    % 3-) Check the constraints and Lagrange multipliers
-    % 4-) If all constraints are staisfied and Lagrange multipliers are positive, terminate!
-    % 5-) If some Lagrange multipliers are negative or zero, find the most negative one 
-    %     and remove it from the active set
-    % 6-) If some constraints are violated, add the most violated one to the working set
-    % 7-) Go to step 2
-    
-    
     % Compute c in the QP problem formulation
     c = [df(x)]';     %#ok<NBRAK> 
     
